@@ -179,3 +179,165 @@ php artisan user token johndoe add monitoring read
 * Readable Structure: Subcommands and their arguments are clearly defined in the signature.
 * Extensible: Add new subcommands without restructuring your entire command.
 * Logical Grouping: Keeps related functionality together.
+
+## WithNamedParameters Trait
+
+The `WithNamedParameters` trait adds the ability to define validation rules with named parameters in your Laravel application. This feature simplifies rule customization and parameter management in complex validation scenarios.
+
+### Key Features
+
+- **Named Parameters in Validation Rules**: Define parameters for custom validation rules directly in the validation string.
+- **Automatic Parameter Mapping**: Maps the provided parameters to the rule attributes with default values.
+- **Customizable Messages**: Provides a way to dynamically replace placeholders in error messages.
+- **Registration of Custom Rules**: Automatically registers the custom rule with Laravel's validator.
+
+### Example Usage
+
+#### Validation Rule Definition
+
+Define your validation rules with named parameters:
+
+```php
+[
+  "field" => "required|my_rule:value1,strict,true,1.2.3"
+]
+```
+
+#### Parameter Configuration Overview
+
+In this example, the rule string `my_rule:value1,strict,true,1.2.3` maps directly to the following attributes:
+
+- **`Value('category')`**: Maps to the `value1` parameter.
+- **`Value('mode', dictionary: ['strict', 'lenient'])`**: Maps to the `strict` parameter, with validation restricted to the listed dictionary values.
+- **`Flag('active')`**: Maps to the `true` parameter (interpreted as a boolean flag).
+- **`Sequence('ids_to_exclude')`**: Maps to the `1.2.3` parameter (interpreted as a sequence of values).
+
+These parameters are automatically accessible within the rule as class properties:
+
+- `$this->category`
+- `$this->mode`
+- `$this->active`
+- `$this->ids_to_exclude`
+
+#### Abstract Example of a Custom Rule
+
+Here’s a generalized implementation of a custom rule:
+
+```php
+<?php
+
+use Kobylinski\Beetroot\Attributes\Value;
+use Kobylinski\Beetroot\Attributes\Flag;
+use Kobylinski\Beetroot\Attributes\Sequence;
+use Kobylinski\Beetroot\Attributes\Rule;
+
+#[Rule("my_rule")]
+class MyCustomRule
+{
+    use WithNamedParameters;
+
+    /**
+     * Run the validation rule.
+     *
+     * @param  string  $attribute
+     * @param  mixed  $value
+     * @param  Closure(string, ?string=): void  $fail
+     */
+    #[Value("category"), Value("mode", dictionary: ["strict", "lenient"]), Flag("active"), Sequence("ids_to_exclude")]
+    public function validate(string $attribute, mixed $value, Closure $fail): void
+    {
+        // Example: Ensure the value matches the configured category
+        if ($this->category !== $value) {
+            $fail("The $attribute must belong to the {$this->category} category.");
+        }
+
+        // Additional checks based on mode
+        if ($this->mode === 'strict' && strlen($value) < 5) {
+            $fail("The $attribute must be at least 5 characters long in strict mode.");
+        }
+
+        // Example usage of flags and sequences
+        if ($this->active && in_array($value, $this->ids_to_exclude)) {
+            $fail("The $attribute cannot be one of the excluded values.");
+        }
+    }
+}
+```
+
+### Attributes
+
+#### `NamedParameter`
+Define attributes for your custom validation parameters. Each `NamedParameter` can include:
+- **`name`**: The name of the parameter.
+- **`default`**: The default value for the parameter.
+- **`adjust`**: (Optional) A callback to adjust or transform the parameter value.
+
+#### `Value`
+Defines a single value parameter with its name and an optional default value. You can specify a `dictionary` of allowed values to restrict input to predefined options.
+
+#### `Flag`
+Defines a boolean flag that can be included in the rule definition to toggle behavior.
+
+#### `Sequence`
+Defines a list of expected values that can be validated as part of the rule.
+
+#### `Rule`
+Associates a name with the validation rule for registration.
+
+### Example Validator Configuration
+
+Here’s an example of how to use a custom rule in your validation:
+
+```php
+use Illuminate\Support\Facades\Validator;
+
+$data = [
+    'field' => 'example_value',
+];
+
+$rules = [
+    'field' => 'required|my_rule:value1,strict,true,1.2.3',
+];
+
+$validator = Validator::make($data, $rules);
+
+if ($validator->fails()) {
+    dd($validator->errors());
+}
+```
+
+### Adding New Rules
+
+To add a new rule with named parameters:
+
+1. Create the rule using the Artisan command:
+
+    ```bash
+    php artisan make:rule MyCustomRule
+    ```
+
+2. Open the newly created rule file in `app/Rules/MyCustomRule.php`.
+3. Use the `WithNamedParameters` trait.
+4. Annotate the `validate` method with `NamedParameter` attributes.
+
+    Example:
+
+    ```php
+    #[Value("category"), Value("mode", dictionary: ["strict", "lenient"]), Flag("active"), Sequence("ids_to_exclude")]
+    ```
+
+5. Implement your validation logic in the `validate` method.
+6. Call the `register()` method to register the rule.
+
+### Registering Custom Rules
+
+You can register your rule in a service provider:
+
+```php
+use App\Rules\MyCustomRule;
+
+public function boot()
+{
+    MyCustomRule::register();
+}
+```
