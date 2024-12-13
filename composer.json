@@ -1,0 +1,22 @@
+{
+  "name": "kobylinski/beetroot",
+  "description": "Helpers to extend Laravel's console commands with validation rules and support for subcommands with nested arguments.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+      {
+          "name": "Marek Kobylinski",
+          "email": "marek@kobylinski.co"
+      }
+  ],
+  "require": {
+      "php": ">=8.0",
+      "illuminate/console": "^10.0",
+      "illuminate/support": "^10.0"
+  },
+  "autoload": {
+      "psr-4": {
+          "Kobylinski\\Beetroot\\": "src/"
+      }
+  }
+}
