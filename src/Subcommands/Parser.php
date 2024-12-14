@@ -26,7 +26,8 @@ class Parser extends BaseParser
   protected static function parameters(
     array $tokens,
     array $arguments = [],
-    array $options = []
+    array $options = [],
+    array $subcommands = []
   ) {
     foreach ($tokens as $token) {
       // Check for nested subcommands
@@ -36,12 +37,14 @@ class Parser extends BaseParser
         $name = static::name($token);
         $commands = static::parseSubcommand($name, $token);
         $arguments[] = $commands["argument"];
+        $subcommands[$name] = count($arguments);
         $command = self::currentArgs(count($arguments));
         if ($command && isset($commands["commands"][$command])) {
-          [$arguments, $options] = static::parameters(
+          [$arguments, $options, $subcommands] = static::parameters(
             $commands["commands"][$command],
             $arguments,
-            $options
+            $options,
+            $subcommands
           );
           $forceRequired = false;
           for ($i = count($arguments) - 1; $i >= 0; $i--) {
@@ -70,7 +73,7 @@ class Parser extends BaseParser
       }
     }
 
-    return [$arguments, $options];
+    return [$arguments, $options, $subcommands];
   }
 
   protected static function parseSubcommand(string $name, string $token)
@@ -117,7 +120,7 @@ class Parser extends BaseParser
     ];
   }
 
-  private static function currentArgs(?int $index = null): array|string|null
+  public static function currentArgs(?int $index = null): array|string|null
   {
     $argv = [...(array) $_SERVER["argv"]];
     array_shift($argv);

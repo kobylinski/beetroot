@@ -5,10 +5,11 @@ namespace Kobylinski\Beetroot;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Traversable;
 
 trait WithValidate
 {
-  abstract protected function rules(): array;
+  abstract protected function rules(): Traversable|array;
 
   /**
    * Tests command input and pass to handle method or print validate errors
@@ -27,7 +28,7 @@ trait WithValidate
           return !empty($value);
         })
         ->toArray(),
-      $this->rules(),
+      iterator_to_array($this->rules()),
       $this->messages()
     );
 
