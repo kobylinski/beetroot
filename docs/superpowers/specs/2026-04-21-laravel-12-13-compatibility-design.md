@@ -43,14 +43,18 @@ change; if something is wrong it reverts as one unit.
 
 |         | L10 | L11 | L12 | L13 |
 |---------|-----|-----|-----|-----|
-| PHP 8.1 | yes |     |     |     |
 | PHP 8.2 | yes | yes | yes |     |
 | PHP 8.3 | yes | yes | yes | yes |
 | PHP 8.4 |     | yes | yes | yes |
 
-Total: 11 CI jobs (16 cells minus 5 excluded combinations). Derived from each
-Laravel major's minimum PHP (L10:8.1, L11:8.2, L12:8.2, L13:8.3) and each PHP
-release's support window.
+Total: 10 CI jobs. Derived from each Laravel major's minimum PHP (L10:8.1 +
+L11:8.2 + L12:8.2 + L13:8.3) and each PHP release's support window.
+
+**Note on PHP 8.1:** Laravel 10 itself supports PHP 8.1, but Pest 2.34+ pulls in
+`brianium/paratest ^7.4.3`, and every paratest 7.x release requires PHP 8.2+.
+Earlier Pest 2.x releases conflict with modern PHPUnit 10.5. Since we can't
+actually *test* on PHP 8.1, it would be dishonest to advertise support for it
+— so the composer floor is `>=8.2` and the CI matrix starts at 8.2 as well.
 
 ## Composer changes
 
@@ -73,7 +77,8 @@ release's support window.
 ```
 
 Rationale:
-- PHP floor `>=8.1` — Laravel 10's minimum. Cannot go lower without dropping L10.
+- PHP floor `>=8.2` — Laravel 10 supports 8.1, but Pest/paratest does not (see
+  "Note on PHP 8.1" in the compatibility matrix section).
 - Pest `^2.34|^3.0` — Pest 3 requires PHP 8.2+, Pest 2 still supports 8.1.
   Composer resolves per PHP version automatically.
 - `orchestra/testbench` is the de facto way to boot Laravel services inside a
