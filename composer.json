@@ -4,20 +4,36 @@
   "type": "library",
   "license": "MIT",
   "authors": [
-      {
-          "name": "Marek Kobylinski",
-          "email": "marek@kobylinski.co"
-      }
+    {
+      "name": "Marek Kobylinski",
+      "email": "marek@kobylinski.co"
+    }
   ],
   "require": {
-      "php": ">=8.0",
-      "illuminate/console": "^10.0|^11.0",
-      "illuminate/support": "^10.0|^11.0",
-      "illuminate/validation": "^10.0|^11.0"
+    "php": ">=8.2",
+    "illuminate/console": "^10.0|^11.0|^12.0|^13.0",
+    "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+    "illuminate/validation": "^10.0|^11.0|^12.0|^13.0"
+  },
+  "require-dev": {
+    "pestphp/pest": "^2.34|^3.0",
+    "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0"
   },
   "autoload": {
-      "psr-4": {
-          "Kobylinski\\Beetroot\\": "src/"
-      }
+    "psr-4": {
+      "Kobylinski\\Beetroot\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Kobylinski\\Beetroot\\Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
   }
 }
