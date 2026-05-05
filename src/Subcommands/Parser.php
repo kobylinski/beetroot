@@ -38,7 +38,7 @@ class Parser extends BaseParser
         $commands = static::parseSubcommand($name, $token);
         $arguments[] = $commands["argument"];
         $subcommands[$name] = count($arguments);
-        $command = self::currentArgs(count($arguments));
+        $command = self::currentArgs(count($arguments)) ?? $commands["argument"]->getDefault();
         if ($command && isset($commands["commands"][$command])) {
           [$arguments, $options, $subcommands] = static::parameters(
             $commands["commands"][$command],
