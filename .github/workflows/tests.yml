@@ -53,7 +53,9 @@ jobs:
       # Laravel 10 receives security advisories that currently block Composer resolution.
       - name: Install dependencies (Laravel 10)
         if: matrix.laravel == '10.*'
-        run: composer update --prefer-dist --no-progress --no-security-blocking
+        env:
+          COMPOSER_NO_SECURITY_BLOCKING: 1
+        run: composer update --prefer-dist --no-progress
 
       - name: Install dependencies
         if: matrix.laravel != '10.*'
