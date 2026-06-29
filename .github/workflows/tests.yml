@@ -50,7 +50,12 @@ jobs:
             "orchestra/testbench:${{ matrix.testbench }}" \
             --no-interaction --no-update
 
+      - name: Install dependencies (Laravel 10)
+        if: matrix.laravel == '10.*'
+        run: composer update --prefer-dist --no-progress --no-security-blocking
+
       - name: Install dependencies
+        if: matrix.laravel != '10.*'
         run: composer update --prefer-dist --no-progress
 
       - name: Run tests
