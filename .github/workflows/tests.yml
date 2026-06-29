@@ -50,6 +50,7 @@ jobs:
             "orchestra/testbench:${{ matrix.testbench }}" \
             --no-interaction --no-update
 
+      # Laravel 10 receives security advisories that currently block Composer resolution.
       - name: Install dependencies (Laravel 10)
         if: matrix.laravel == '10.*'
         run: composer update --prefer-dist --no-progress --no-security-blocking
