@@ -32,7 +32,7 @@ jobs:
             laravel: '10.*'
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
@@ -50,7 +50,15 @@ jobs:
             "orchestra/testbench:${{ matrix.testbench }}" \
             --no-interaction --no-update
 
+      # Laravel 10 and 11 currently receive security advisories that block Composer resolution.
+      - name: Install dependencies (Laravel 10/11)
+        if: matrix.laravel == '10.*' || matrix.laravel == '11.*'
+        env:
+          COMPOSER_NO_SECURITY_BLOCKING: 1
+        run: composer update --prefer-dist --no-progress
+
       - name: Install dependencies
+        if: matrix.laravel != '10.*' && matrix.laravel != '11.*'
         run: composer update --prefer-dist --no-progress
 
       - name: Run tests
